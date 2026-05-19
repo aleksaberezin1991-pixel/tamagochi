@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Тамагочи — Модный питомец</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(145deg, #1b5e3f 0%, #0a2e1f 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px;
+        }
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: #fef7e0;
+            border-radius: 48px 48px 40px 40px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .top-bar {
+            background: #ffcf4a;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .coins {
+            background: #2c2c2c;
+            padding: 6px 14px;
+            border-radius: 40px;
+            color: gold;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ad-btn {
+            background: #f39c12;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .lang-select {
+            background: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .pet-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 10px;
+            background: #fff0ce;
+        }
+        .pet-option {
+            background: #e6c99c;
+            border: none;
+            border-radius: 60px;
+            padding: 6px 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .pet-option.active {
+            background: #ffb347;
+            color: white;
+            box-shadow: 0 2px 6px orange;
+        }
+        .pet-avatar {
+            text-align: center;
+            padding: 20px;
+            font-size: 5rem;
+            background: #fff2df;
+            margin: 12px 20px;
+            border-radius: 60px;
+        }
+        .pet-stats {
+            display: flex;
+            gap: 12px;
+            margin: 10px 20px;
+            background: #ede2c6;
+            border-radius: 60px;
+            padding: 10px;
+        }
+        .stat {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            background: #fcf3df;
+            border-radius: 44px;
+            padding: 6px;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 20px;
+        }
+        .action-btn {
+            background: #ffb347;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 70px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #a45d1c;
+            transition: 0.05s linear;
+        }
+        .action-btn:active {
+            transform: translateY(2px);
+        }
+        .shop-section, .leaderboard {
+            background: #e1cfaa;
+            margin: 15px 20px;
+            border-radius: 48px;
+            padding: 12px 16px;
+        }
+        .shop-title, .leader-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            background: #fff4e4;
+            border-radius: 50px;
+            padding: 6px 15px;
+            align-items: center;
+        }
+        .buy-btn {
+            background: #2c7a47;
+            border: none;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .buy-btn:disabled {
+            background: gray;
+        }
+        .leader-list {
+            background: #fff4e4;
+            border-radius: 40px;
+            padding: 8px 12px;
+        }
+        .leader-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #d6bd82;
+            font-size: 0.9rem;
+        }
+        .reset-btn, .clear-leaderboard {
+            background: #8b5a2b;
+            width: calc(100% - 40px);
+            margin: 8px 20px;
+            border: none;
+            padding: 10px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        footer {
+            font-size: 10px;
+            text-align: center;
+            padding: 12px;
+            background: #ffcf4a;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="app"></div>
+
+<script>
+    const translations = {
+        ru: {
+            coins:"Монеты", feed:"🍗 Кормить", drink:"💧 Поить", dress:"👗 Одеть",
+            hunger:"🍔 Голод", thirst:"🥤 Жажда", mood:"😊 Настроение", shop:"🛍️ Бутик",
+            item1:"🎩 Шляпа", item2:"🕶️ Очки", item3:"🧣 Шарф", buy:"Купить", reset:"Новый день",
+            bonus:"🎁 Бонус", leader:"🏆 Топ игроков", clear:"Очистить", watchAd:"📺 Реклама +50",
+            petNames:["Котик","Пёсик","Панда"], noMoney:"Нет монет!", dressed:"Нарядили!",
+            bonusTaken:"Бонус уже получен!", bonusNew:"Бонус получен! +", adReward:"Спасибо! +50 монет"
+        },
+        en: {
+            coins:"Coins", feed:"🍗 Feed", drink:"💧 Drink", dress:"👗 Dress",
+            hunger:"🍔 Hunger", thirst:"🥤 Thirst", mood:"😊 Mood", shop:"👘 Shop",
+            item1:"🎩 Hat", item2:"🕶️ Glasses", item3:"🧣 Scarf", buy:"Buy", reset:"New Day",
+            bonus:"🎁 Bonus", leader:"🏆 Leaderboard", clear:"Clear", watchAd:"📺 Ad +50",
+            petNames:["Kitty","Puppy","Panda"], noMoney:"No coins!", dressed:"Dressed!",
+            bonusTaken:"Bonus already claimed!", bonusNew:"Bonus gained! +", adReward:"Thanks! +50 coins"
+        },
+        zh: {
+            coins:"硬币", feed:"🍗 喂食", drink:"💧 喂水", dress:"👗 打扮",
+            hunger:"🍔 饥饿", thirst:"🥤 口渴", mood:"😊 心情", shop:"🛍️ 时装店",
+            item1:"🎩 帽子", item2:"🕶️ 眼镜", item3:"🧣 围巾", buy:"购买", reset:"新的一天",
+            bonus:"🎁 奖励", leader:"🏆 排行榜", clear:"清空", watchAd:"📺 广告 +50",
+            petNames:["小猫","小狗","熊猫"], noMoney:"硬币不足！", dressed:"盛装打扮！",
+            bonusTaken:"今日奖励已领！", bonusNew:"获得奖励 +", adReward:"谢谢！ +50硬币"
+        },
+        hi: {
+            coins:"सिक्के", feed:"🍗 खिलाएं", drink:"💧 पिलाएं", dress:"👗 कपड़े",
+            hunger:"🍔 भूख", thirst:"🥤 प्यास", mood:"😊 मूड", shop:"🛍️ दुकान",
+            item1:"🎩 टोपी", item2:"🕶️ चश्मा", item3:"🧣 दुपट्टा", buy:"खरीदें", reset:"नया दिन",
+            bonus:"🎁 बोनस", leader:"🏆 लीडरबोर्ड", clear:"साफ करें", watchAd:"📺 विज्ञापन +50",
+            petNames:["बिल्ली","कुत्ता","पांडा"], noMoney:"पैसे नहीं!", dressed:"सज गए!",
+            bonusTaken:"आज बोनस मिल चुका!", bonusNew:"बोनस मिला +", adReward:"धन्यवाद! +50 सिक्के"
+        }
+    };
+
+    const PETS = { cat:"🐱", dog:"🐶", panda:"🐼" };
+    const CLOTHING = [
+        { id:"hat", emoji:"🎩", price:25 },
+        { id:"glasses", emoji:"🕶️", price:30 },
+        { id:"scarf", emoji:"🧣", price:20 }
+    ];
+    
+    let currentLang = "ru";
+    let selectedPetId = "cat";
+    let stats = { hunger:70, thirst:70, mood:70 };
+    let coins = 180;
+    let ownedItems = { hat:false, glasses:false, scarf:false };
+    let activeWear = [];
+    let petEmoji = "🐱";
+    let intervalId = null;
+    let playerName = "Игрок";
+
+    let leaderboard = [];
+    function loadLeaderboard() {
+        let saved = localStorage.getItem("tamagochi_leaderboard");
+        if(saved) { try{ leaderboard = JSON.parse(saved); }catch(e){} }
+        if(leaderboard.length===0){
+            leaderboard = [
+                { name:"Алиса", score:285, pet:"🐱", date:"2025-05-18" },
+                { name:"Рокки", score:212, pet:"🐶", date:"2025-05-17" }
+            ];
+            saveLeaderboard();
+        }
+    }
+    function saveLeaderboard() { localStorage.setItem("tamagochi_leaderboard", JSON.stringify(leaderboard)); }
+    function updateLeaderboard() {
+        let currentScore = Math.floor(coins + stats.mood * 2);
+        let existing = leaderboard.find(entry => entry.name === playerName);
+        if(existing) { existing.score = currentScore; existing.pet = PETS[selectedPetId]; }
+        else { leaderboard.push({ name:playerName, score:currentScore, pet:PETS[selectedPetId], date:new Date().toISOString().slice(0,10) }); }
+        leaderboard.sort((a,b)=> b.score - a.score);
+        if(leaderboard.length > 8) leaderboard = leaderboard.slice(0,8);
+        saveLeaderboard();
+        render();
+    }
+    function clearLeaderboard() { leaderboard = []; saveLeaderboard(); render(); }
+
+    let lastBonusDate = localStorage.getItem("tamagochi_bonus_date") || "";
+    let bonusStreak = parseInt(localStorage.getItem("tamagochi_bonus_streak") || "0");
+    function giveDailyBonus() {
+        const today = new Date().toISOString().slice(0,10);
+        if(lastBonusDate === today){ alert(getText("bonusTaken")); return false; }
+        let rewardCoins = 50 + bonusStreak * 10;
+        if(rewardCoins > 150) rewardCoins = 150;
+        let dayDiff = (new Date(today) - new Date(lastBonusDate)) / (1000*60*60*24);
+        if(dayDiff === 1) bonusStreak = Math.min(bonusStreak+1, 7);
+        else if(dayDiff > 1) bonusStreak = 0;
+        coins += rewardCoins;
+        stats.hunger = Math.min(100, stats.hunger+25);
+        stats.thirst = Math.min(100, stats.thirst+25);
+        stats.mood = Math.min(100, stats.mood+25);
+        lastBonusDate = today;
+        localStorage.setItem("tamagochi_bonus_date", lastBonusDate);
+        localStorage.setItem("tamagochi_bonus_streak", bonusStreak);
+        alert(getText("bonusNew") + rewardCoins + " 🪙");
+        updateLeaderboard();
+        render();
+        return true;
+    }
+
+    function addCoins(amount){ coins += amount; updateLeaderboard(); render(); }
+    function feedPet() { stats.hunger = Math.min(100, stats.hunger + 20); stats.mood = Math.min(100, stats.mood + 3); addCoins(3); render(); }
+    function waterPet() { stats.thirst = Math.min(100, stats.thirst + 20); stats.mood = Math.min(100, stats.mood + 3); addCoins(3); render(); }
+    function dressRandom() {
+        let available = CLOTHING.filter(c => ownedItems[c.id] && !activeWear.includes(c.emoji));
+        if(available.length===0){ alert(getText("dressed")); return; }
+        let randomItem = available[Math.floor(Math.random()*available.length)];
+        if(!activeWear.includes(randomItem.emoji)){ activeWear.push(randomItem.emoji); updatePetEmojiByWear(); stats.mood = Math.min(100, stats.mood+8); addCoins(5); render(); }
+    }
+    function buyItem(itemId, price, emoji) {
+        if(ownedItems[itemId]) { alert(getText("noMoney")); return false; }
+        if(coins >= price){ coins -= price; ownedItems[itemId] = true; if(!activeWear.includes(emoji)) activeWear.push(emoji); updatePetEmojiByWear(); updateLeaderboard(); render(); return true; }
+        else { alert(getText("noMoney")); return false; }
+    }
+    function updatePetEmojiByWear() { let base = PETS[selectedPetId]; let wearStr = activeWear.join(""); petEmoji = wearStr ? base + " " + wearStr : base; }
+    function changePet(petId){ selectedPetId = petId; activeWear = []; updatePetEmojiByWear(); render(); }
+    function resetGame(){ stats = { hunger:70, thirst:70, mood:70 }; coins = 180; ownedItems = { hat:false, glasses:false, scarf:false }; activeWear = []; updatePetEmojiByWear(); updateLeaderboard(); render(); }
+    function startDecayTimer(){ if(intervalId) clearInterval(intervalId); intervalId = setInterval(()=>{ stats.hunger = Math.max(0, stats.hunger-2); stats.thirst = Math.max(0, stats.thirst-2); stats.mood = Math.max(0, stats.mood-1.2); updateLeaderboard(); render(); }, 9000); }
+    
+    function watchAdForCoins() {
+        if(confirm("📺 Посмотреть рекламу и получить 50 монет?")) {
+            addCoins(50);
+            alert(getText("adReward"));
+        }
+    }
+
+    function getText(key){ return translations[currentLang][key] || key; }
+    function setLanguage(lang){ currentLang = lang; render(); }
+
+    function render() {
+        const t = translations[currentLang];
+        const shopHtml = CLOTHING.map(item => {
+            const owned = ownedItems[item.id];
+            const itemName = t[`item${CLOTHING.findIndex(c=>c.id===item.id)+1}`] || item.emoji;
+            return `<div class="item"><span>${item.emoji} ${itemName} - ${item.price}🪙</span><button class="buy-btn" data-id="${item.id}" data-price="${item.price}" data-emoji="${item.emoji}" ${owned ? 'disabled' : ''}>${owned ? "✓" : t.buy}</button></div>`;
+        }).join("");
+        const leaderHtml = leaderboard.slice(0,5).map((entry, idx)=>`<div class="leader-row"><span>${idx+1}. ${entry.name} ${entry.pet}</span><span>🏆 ${entry.score}</span></div>`).join("");
+        
+        const html = `
+            <div class="top-bar">
+                <div class="coins">💰 ${Math.floor(coins)}</div>
+                <button class="ad-btn" id="watchAdBtn">${t.watchAd}</button>
+                <button class="bonus-btn" id="dailyBonusBtn" style="background:#d4af37;border:none;border-radius:60px;padding:6px 12px;">🎁</button>
+                <select class="lang-select" id="langSelect"><option value="ru" ${currentLang==='ru' ? 'selected' : ''}>🇷🇺</option><option value="en" ${currentLang==='en' ? 'selected' : ''}>🇬🇧</option><option value="zh" ${currentLang==='zh' ? 'selected' : ''}>🇨🇳</option><option value="hi" ${currentLang==='hi' ? 'selected' : ''}>🇮🇳</option></select>
+            </div>
+            <div class="pet-selector"><button class="pet-option ${selectedPetId==='cat' ? 'active':''}" data-pet="cat">🐱 ${t.petNames[0]}</button><button class="pet-option ${selectedPetId==='dog' ? 'active':''}" data-pet="dog">🐶 ${t.petNames[1]}</button><button class="pet-option ${selectedPetId==='panda' ? 'active':''}" data-pet="panda">🐼 ${t.petNames[2]}</button></div>
+            <div class="pet-avatar">${petEmoji}</div>
+            <div class="pet-stats"><div class="stat">🍔 ${Math.floor(stats.hunger)}%<br>${t.hunger}</div><div class="stat">💧 ${Math.floor(stats.thirst)}%<br>${t.thirst}</div><div class="stat">😊 ${Math.floor(stats.mood)}%<br>${t.mood}</div></div>
+            <div class="action-buttons"><button class="action-btn" id="feedBtn">${t.feed}</button><button class="action-btn" id="drinkBtn">${t.drink}</button><button class="action-btn" id="dressBtn">${t.dress}</button></div>
+            <div class="shop-section"><div class="shop-title">${t.shop}</div><div class="shop-items">${shopHtml}</div></div>
+            <div class="leaderboard"><div class="leader-title">${t.leader}</div><div class="leader-list">${leaderHtml || "<div>Нет данных</div>"}</div><button class="clear-leaderboard" id="clearLeaderBtn">🗑️ ${t.clear}</button></div>
+            <button class="reset-btn" id="resetBtn">🔄 ${t.reset}</button>
+            <footer>🐾 Смотри рекламу → получай монеты → покупай одежду!</footer>
+        `;
+        document.getElementById("app").innerHTML = html;
+        
+        document.getElementById("feedBtn")?.addEventListener("click", feedPet);
+        document.getElementById("drinkBtn")?.addEventListener("click", waterPet);
+        document.getElementById("dressBtn")?.addEventListener("click", dressRandom);
+        document.getElementById("resetBtn")?.addEventListener("click", resetGame);
+        document.getElementById("dailyBonusBtn")?.addEventListener("click", ()=>{ giveDailyBonus(); });
+        document.getElementById("watchAdBtn")?.addEventListener("click", ()=>{ watchAdForCoins(); });
+        document.getElementById("clearLeaderBtn")?.addEventListener("click", ()=>{ clearLeaderboard(); });
+        document.getElementById("langSelect")?.addEventListener("change", (e)=>setLanguage(e.target.value));
+        document.querySelectorAll(".pet-option").forEach(btn=>{ btn.addEventListener("click", ()=>{ changePet(btn.getAttribute("data-pet")); }); });
+        document.querySelectorAll(".buy-btn").forEach(btn=>{ btn.addEventListener("click", (e)=>{ let id = btn.getAttribute("data-id"), price = parseInt(btn.getAttribute("data-price")), emoji = btn.getAttribute("data-emoji"); if(id) buyItem(id, price, emoji); }); });
+    }
+
+    function init(){
+        loadLeaderboard();
+        let savedName = localStorage.getItem("tamagochi_player_name");
+        if(savedName) playerName = savedName;
+        else { playerName = prompt("Введите ваше имя:", "Игрок") || "Игрок"; localStorage.setItem("tamagochi_player_name", playerName); }
+        updatePetEmojiByWear();
+        startDecayTimer();
+        render();
+    }
+    init();
+</script>
+</body>
+</html>
